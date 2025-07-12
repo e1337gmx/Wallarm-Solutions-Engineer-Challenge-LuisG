@@ -135,11 +135,11 @@ Test date: July 12, 2025
 
 Your submission will be evaluated based on:
 
-📌 **Completeness**: Were all required tasks completed?  
-📌 **Clarity**: Is the documentation clear and well-structured?  
-📌 **Troubleshooting**: How well did you document and resolve any issues?  
-📌 **Understanding of the Product**: Did you correctly set up and use the Wallarm filtering node?  
-📌 **Use of Official Documentation**: Did you successfully leverage Wallarm's official resources?  
+📌 **Completeness**: Were all required tasks completed?  YES
+📌 **Clarity**: Is the documentation clear and well-structured?  I believe it can be better, as I learn the platform more.
+📌 **Troubleshooting**: How well did you document and resolve any issues?  Troubleshooting was my own laptop issues, github, and docker, WALLARM was flawless.
+📌 **Understanding of the Product**: Did you correctly set up and use the Wallarm filtering node?  YES, from everything I was reading and I founbd value to a previous employeer, who I will inform.
+📌 **Use of Official Documentation**: Did you successfully leverage Wallarm's official resources?  I used it ALL and also went on to Youtube to get basic fundamentals of platform as I am 9 hours old in using WallArm.
 
 
 
