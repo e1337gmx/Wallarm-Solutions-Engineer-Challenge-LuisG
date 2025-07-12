@@ -1,58 +1,133 @@
-# Wallarm Solutions Engineer Technical Evaluation
-
-## 📌 Overview
-
-Welcome to the **Wallarm Solutions Engineer Technical Evaluation**. This exercise is designed to assess your ability to deploy and configure Wallarm's filtering nodes using a deployment method of your choice, troubleshoot any issues encountered, and document your process effectively. Additionally, we will evaluate your ability to leverage our official documentation to complete the task.
-
----
+# Wallarm Solutions Engineer Technical Evaluation For Luis Guzman
 
 ## 🎯 Objectives
 
-By the end of this evaluation, you should be able to:
+AT the end of this evaluation, I was able to:
 
-✅ Deploy a Wallarm filtering node using a supported method of your choice.  
-✅ Configure a backend origin to receive test traffic. (httpbin.org is also acceptable)  
-✅ Use the **GoTestWAF** attack simulation tool to generate traffic.  
+✅ Deploy a Wallarm filtering node using a Docker  
+✅ Configure a backend origin to receive test traffic. (httpbin.org) 
+✅ Use the **GoTestWAF** attack simulation tool to generate traffic (GoLang)
 ✅ Document the deployment and troubleshooting process.  
 ✅ Demonstrate proficiency in using **Wallarm's official documentation**.  
 
 ---
 
-## 📂 Prerequisites
+## 🚀 Task Breakdown
 
-Before you begin, ensure you have access to:
+# Wallarm Filtering Node + GoTestWAF Evaluation (MacBook Pro)
 
-- A **cloud or desktop environment** that supports one of Wallarm’s [deployment methods](https://docs.wallarm.com/installation/supported-deployment-options/) (**Kubernetes, Docker, VM, etc.**).
-- A **backend application** or API endpoint to receive test traffic.
-- **GoTestWAF**: [GitHub Repository](https://github.com/wallarm/gotestwaf)
-- **Wallarm official documentation**: [Documentation Portal](https://docs.wallarm.com/)
+This project demonstrates how to run a local Wallarm filtering node on macOS using Docker and evaluate it with GoTestWAF against a backend origin (httpbin.org).
+
+## 🔧 Requirements
+
+- Docker (tested with `Docker version 28.3.0`)
+- Go (tested with `go version go1.24.5 darwin/arm64`)
+- Homebrew (used to install CLI tools)
 
 ---
 
-## 🚀 Task Breakdown
+## Setup Instructions 
 
-### 1️⃣ Deploy a Wallarm Filtering Node
+### 1. Install Required Tools
+```bash
+xcode-select --install          # Install command line tools
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+brew install go                 # Install Go
+brew install docker             # If Docker not installed
+```
 
-🔹 Choose a [deployment method](https://docs.wallarm.com/installation/supported-deployment-options/) (**e.g., Docker, Kubernetes, AWS, etc.**).  
-🔹 Follow the [**official Wallarm documentation**](https://docs.wallarm.com/) to install and configure the filtering node.  
-🔹 Verify that the filtering node is properly deployed and running.  
+### 2. Clone the GoTestWAF Repository
+```bash
+git clone https://github.com/wallarm/gotestwaf.git
+cd gotestwaf
+go build                        # Compile the CLI binary
+```
 
-### 2️⃣ Set Up a Backend Origin
+---
 
-🔹 Configure a simple **backend API or web application** to receive traffic.  
-🔹 Ensure the backend is **reachable from the filtering node**.  
+## Deploy Wallarm Filtering Node (Locally via Docker)
 
-### 3️⃣ Generate Traffic Using GoTestWAF
+> Followed Wallarm docs: https://docs.wallarm.com/installation/inline/compute-instances/docker/nginx-based/
 
-🔹 Install and configure **GoTestWAF**.  
-🔹 Send attack simulation traffic through the **Wallarm filtering node**.  
-🔹 Analyze the results and confirm that attacks are being detected.  
+1. **Obtain your Wallarm API token**
+   - Log into [Wallarm Console](https://us1.my.wallarm.com/)
+   - Go to *Settings → API Tokens* and generate one with `Administrator` permissions
 
-### 4️⃣ Document Your Process
+2. **Run Wallarm Node Docker container**
+```bash
+docker run -d \
+  -e WALLARM_API_TOKEN='PASTE_YOUR_TOKEN' \
+  -e WALLARM_LABELS='group=macbook-local' \
+  -e NGINX_BACKEND='http://host.docker.internal:8081' \
+  -e WALLARM_API_HOST='us1.api.wallarm.com' \
+  -p 8080:80 \
+  wallarm/node:latest
+```
 
-📝 Provide an **overview summary** of your deployment and why you chose it.  
-🛠️ Document any **issues encountered and how you resolved them**.  
-📸 Include **relevant logs, screenshots, or outputs** where applicable.  
+### 3. Deploy Backend Origin (httpbin.org)
+```bash
+docker run -d -p 8081:80 kennethreitz/httpbin
+```
+
+Ensure Wallarm is proxying requests to httpbin.org:
+```bash
+curl http://localhost:8080/get
+```
+---
+
+## Run GoTestWAF Evaluation
+```bash
+./gotestwaf \
+  --url http://localhost:8080 \
+  --noEmailReport \
+  --reportFormat html \
+  --includePayloads
+```
+
+> HTML Report will be saved to: `./reports/waf-evaluation-report-<timestamp>.html`
+
+---
+
+## Results Summary (2025-07-12)
+
+**True-Positive Score:** 662/666 blocked — `99.40%`
+
+**True-Negative Score:** 46/47 passed — `97.87%`
+
+**Overall Protection Accuracy:** `99.32%`
+
+![Wallarm Local Setup](./docs/wallarm-local-diagram.png) <!-- Replace with actual PNG if available -->
+
+---
+
+## 🔍 Notes & Observations
+- GraphQL and gRPC test categories showed 0% coverage — expected as httpbin does not support these protocols.
+- Wallarm successfully intercepted and blocked all common OWASP injection categories (XSS, SQLi, LFI, RCE, etc.)
+- Node was deployed locally and identified as a generic WAF
+
+---
+
+## 📂 Repo Structure
+```bash
+.
+├── cmd
+├── docs
+├── internal
+├── misc
+├── pkg
+├── reports         # HTML report saved here
+├── testcases
+├── tests
+├── go.mod / go.sum
+├── Dockerfile / Makefile / config.yaml
+└── gotestwaf        # CLI binary
+```
+
+---
+
+## 🧠 Author
+Luis Guzmán — Solutions Engineer Candidate  
+Test date: July 12, 2025
 
 ---
 
@@ -66,21 +141,6 @@ Your submission will be evaluated based on:
 📌 **Understanding of the Product**: Did you correctly set up and use the Wallarm filtering node?  
 📌 **Use of Official Documentation**: Did you successfully leverage Wallarm's official resources?  
 
----
 
-## 📬 Submission
 
-Once you have completed the evaluation, submit the following:
 
-📂 Fork this **GitHub repo** and use it as the repository for your documentation, configuration files, and any relevant logs or screenshots.  
-📜 A **README file** summarizing your process and key findings.  
-📜 A **HIGH Level Diargram** that illustrates what you built and how traffic is flowing.  
-
----
-
-## ℹ️ Additional Notes
-
-💡 You are encouraged to **ask questions and leverage Wallarm's documentation**.  
-📖 The ability to **document your troubleshooting steps** is just as important as the final deployment.  
-
-🚀 **Good luck, and we look forward to your submission!** 🎉
